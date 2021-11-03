@@ -51,8 +51,8 @@ Here is a sketch of the feature:
   building your solution
 - most UI components should be available in Chakra UI
 - when in doubt about the design or functionality, make a decision yourself
-- we estimate that this task can be done withing a few hours - you can use the
-  PR description to list and discuss the things you decided de-scope, potential
+- we estimate that this task can be done within a few hours - you can use the
+  PR description to list and discuss the things you decided to de-scope, potential
   next steps etc.
 
 ### 3. Impress us
@@ -69,9 +69,9 @@ beautiful animations etc.
 - treat this last task as a little hackathon - no need for tests and covering
   all edge cases - although the code quality still matters
 - whatever you choose to do, choose the scope so that you can finish and make
-  sure to leave the app in "deployable" state
+  sure to leave the app in a "deployable" state
 - scope the work so you can finish within a few hours - you can use the PR
-  description to list and discuss the things you decided de-scope, potential
+  description to list and discuss the things you decided to de-scope, potential
   next steps etc.
 
 ## Practicalities
