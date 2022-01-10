@@ -1,6 +1,6 @@
 import React from "react";
 import { useParams } from "react-router-dom";
-import { MapPin, Navigation } from "react-feather";
+import { MapPin, Navigation, Star } from "react-feather";
 import {
   Flex,
   Heading,
@@ -21,6 +21,7 @@ import { useSpaceX } from "../utils/use-space-x";
 import Error from "./error";
 import Breadcrumbs from "./breadcrumbs";
 import { LaunchItem } from "./launches";
+import useData from "./hooks/useData";
 
 export default function LaunchPad() {
   let { launchPadId } = useParams();
@@ -32,6 +33,28 @@ export default function LaunchPad() {
     sort: "launch_date_utc",
     site_id: launchPad?.site_id,
   });
+
+  const {
+    data: {
+      favourites: { launchPads },
+    },
+    dispatch,
+  } = useData();
+
+  const addToFavourites = (event, launch) => {
+    event.preventDefault();
+    if (!launchPads.includes(launchPad.flight_number)) {
+      dispatch({
+        favourites: { launches: [...launchPads, launchPad.site_id] },
+      });
+    } else {
+      dispatch({
+        favourites: {
+          launches: launchPads.filter((l) => l !== launchPad.site_id),
+        },
+      });
+    }
+  };
 
   if (error) return <Error />;
   if (!launchPad) {
@@ -52,6 +75,21 @@ export default function LaunchPad() {
         ]}
       />
       <Header launchPad={launchPad} />
+      <Flex align={"center"} m={[3, 6]}>
+        <Text>
+          {launchPads.includes(launchPad.site_id) ? "Remove" : "Add"}{" "}
+          {launchPads.site_id} pad{" "}
+          {launchPads.includes(launchPad.site_id) ? "from" : "to"} favourites
+        </Text>
+        <Box
+          ml="2"
+          as={Star}
+          size="20px"
+          cursor="pointer"
+          onClick={(event) => addToFavourites(event, launchPad)}
+          // fill={launches.includes(launch.flight_number) ? "gold" : ""}
+        />
+      </Flex>
       <Box m={[3, 6]}>
         <LocationAndVehicles launchPad={launchPad} />
         <Text color="gray.700" fontSize={["md", null, "lg"]} my="8">

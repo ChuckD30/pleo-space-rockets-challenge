@@ -1,35 +1,100 @@
-import React from "react";
-import { Badge, Box, SimpleGrid, Text } from "@chakra-ui/core";
+import React, { useEffect, useState } from "react";
+import { Badge, Box, SimpleGrid, Flex, Text } from "@chakra-ui/core";
 import { Link } from "react-router-dom";
+import { Star } from "react-feather";
 
 import Error from "./error";
+import useData from "./hooks/useData";
 import Breadcrumbs from "./breadcrumbs";
 import LoadMoreButton from "./load-more-button";
+import { LaunchPadFavourites } from "./favourites-drawer";
 import { useSpaceXPaginated } from "../utils/use-space-x";
 
 const PAGE_SIZE = 12;
 
 export default function LaunchPads() {
-  const { data, error, isValidating, size, setSize } = useSpaceXPaginated(
-    "/launchpads",
-    {
-      limit: PAGE_SIZE,
+  const {
+    data: launchPadData,
+    error,
+    isValidating,
+    size,
+    setSize,
+  } = useSpaceXPaginated("/launchpads", {
+    limit: PAGE_SIZE,
+  });
+
+  const {
+    data: {
+      favourites: { launchPads },
+    },
+    dispatch,
+  } = useData();
+
+  const [data, setData] = useState(launchPadData?.flat() || []);
+
+  const [favouritesList, setFavouritesList] = useState([]);
+
+  const [showFavourites, setShowFavourites] = useState(false);
+
+  const toggleDrawer = () => {
+    setShowFavourites(!showFavourites);
+  };
+
+  useEffect(() => {
+    setData(launchPadData?.flat() || []);
+  }, [launchPadData]);
+
+  useEffect(() => {
+    if (data && data.length) {
+      setFavouritesList([
+        ...data.filter((launchPad) => launchPads.includes(launchPad.site_id)),
+      ]);
     }
-  );
+  }, [launchPads, data]);
+
+  const addToFavourites = (launchPad) => {
+    if (!launchPads.includes(launchPad.site_id)) {
+      dispatch({
+        favourites: {
+          launchPads: [...launchPads, launchPad.site_id],
+        },
+      });
+    } else {
+      dispatch({
+        favourites: {
+          launchPads: launchPads.filter(
+            (launchPadItem) => launchPadItem !== launchPad.site_id
+          ),
+        },
+      });
+    }
+  };
 
   return (
     <div>
-      <Breadcrumbs
-        items={[{ label: "Home", to: "/" }, { label: "Launch Pads" }]}
+      <LaunchPadFavourites
+        active={showFavourites}
+        close={setShowFavourites}
+        list={favouritesList}
       />
+      <Flex align={"center"} justify={"space-between"} mr={6}>
+        <Breadcrumbs
+          items={[{ label: "Home", to: "/" }, { label: "Launch Pads" }]}
+        />
+        <Text cursor="pointer" onClick={toggleDrawer}>
+          Favourites
+        </Text>
+      </Flex>
       <SimpleGrid m={[2, null, 6]} minChildWidth="350px" spacing="4">
         {error && <Error />}
         {data &&
-          data
-            .flat()
-            .map((launchPad) => (
-              <LaunchPadItem key={launchPad.site_id} launchPad={launchPad} />
-            ))}
+          data.map((launchPad) => (
+            <LaunchPadItem
+              launchPad={launchPad}
+              key={launchPad.site_id}
+              addToFavourites={addToFavourites}
+            />
+          ))}
       </SimpleGrid>
       <LoadMoreButton
         loadMore={() => setSize(size + 1)}
@@ -41,7 +106,13 @@ export default function LaunchPads() {
   );
 }
 
-function LaunchPadItem({ launchPad }) {
+function LaunchPadItem({ launchPad, addToFavourites }) {
+  const {
+    data: {
+      favourites: { launchPads },
+    },
+  } = useData();
+
   return (
     <Box
       as={Link}
@@ -76,15 +147,29 @@ function LaunchPadItem({ launchPad }) {
           </Box>
         </Box>
 
-        <Box
-          mt="1"
-          fontWeight="semibold"
-          as="h4"
-          lineHeight="tight"
-          isTruncated
-        >
-          {launchPad.name}
-        </Box>
+        <Flex align={"center"}>
+          <Box
+            mt="1"
+            fontWeight="semibold"
+            as="h4"
+            lineHeight="tight"
+            isTruncated
+          >
+            {launchPad.name}
+          </Box>
+          <Box
+            ml="2"
+            mt="1"
+            as={Star}
+            size="16px"
+            color="gray.500"
+            onClick={(event) => {
+              event.preventDefault();
+              addToFavourites(launchPad);
+            }}
+            fill={launchPads.includes(launchPad.site_id) ? "gold" : ""}
+          />
+        </Flex>
         <Text color="gray.500" fontSize="sm">
           {launchPad.vehicles_launched.join(", ")}
         </Text>
