@@ -19,7 +19,6 @@
     "react-router": "^6.0.0-alpha.3",
     "react-router-dom": "^6.0.0-alpha.3",
     "react-scripts": "3.4.3",
-    "react-tooltip": "^4.2.21",
     "swr": "^0.3.0",
     "timeago.js": "^4.0.2"
   },

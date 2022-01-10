@@ -1,5 +1,4 @@
 import React from "react";
-import ReactTooltip from "react-tooltip";
 import { useParams, Link as RouterLink } from "react-router-dom";
 import { format as timeAgo } from "timeago.js";
 import { Watch, MapPin, Navigation, Layers } from "react-feather";
@@ -20,6 +19,7 @@ import {
   Stack,
   AspectRatioBox,
   StatGroup,
+  Tooltip,
 } from "@chakra-ui/core";
 
 import { useSpaceX } from "../utils/use-space-x";
@@ -125,10 +125,12 @@ function TimeAndLocation({ launch }) {
           </Box>
         </StatLabel>
         <StatNumber fontSize={["md", "xl"]}>
-          <ReactTooltip />
-          <span data-tip={formatDateTime(launch.launch_date_utc)}>
+          <Tooltip
+            label={formatDateTime(launch.launch_date_utc)}
+            aria-label="timezone tooltip"
+          >
             {formatTime(launch.launch_date_local)}
-          </span>
+          </Tooltip>
         </StatNumber>
         <StatHelpText>{timeAgo(launch.launch_date_utc)}</StatHelpText>
       </Stat>
