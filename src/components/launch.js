@@ -19,6 +19,7 @@ import {
   Stack,
   AspectRatioBox,
   StatGroup,
+  useColorMode,
 } from "@chakra-ui/core";
 
 import { useSpaceX } from "../utils/use-space-x";
@@ -27,6 +28,7 @@ import Error from "./error";
 import Breadcrumbs from "./breadcrumbs";
 
 export default function Launch() {
+  const { colorMode } = useColorMode();
   let { launchId } = useParams();
   const { data: launch, error } = useSpaceX(`/launches/${launchId}`);
 
@@ -52,7 +54,11 @@ export default function Launch() {
       <Box m={[3, 6]}>
         <TimeAndLocation launch={launch} />
         <RocketInfo launch={launch} />
-        <Text color="gray.700" fontSize={["md", null, "lg"]} my="8">
+        <Text
+          color={colorMode === "dark" ? "white" : "gray.700"}
+          fontSize={["md", null, "lg"]}
+          my="8"
+        >
           {launch.details}
         </Text>
         <Video launch={launch} />

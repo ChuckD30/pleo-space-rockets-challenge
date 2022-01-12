@@ -1,5 +1,5 @@
 import React from "react";
-import { Badge, Box, Image, SimpleGrid, Text, Flex } from "@chakra-ui/core";
+import { Badge, Box, Image, SimpleGrid, Text, Flex, Select } from "@chakra-ui/core";
 import { format as timeAgo } from "timeago.js";
 import { Link } from "react-router-dom";
 
@@ -21,11 +21,27 @@ export default function Launches() {
     }
   );
   console.log(data, error);
+
+  const filterLaunches = (value) => {
+    return data.filter((launch) => launch.launch_success === value);
+  }
+
   return (
     <div>
       <Breadcrumbs
         items={[{ label: "Home", to: "/" }, { label: "Launches" }]}
       />
+      <Flex m={(2, 6)} align="center">
+        <Text mr={2}>Filter </Text>
+        <Select placeholder="Select option" size="sm" maxWidth={"300px"}>
+          <option value="failed" onClick={() => filterLaunches("failed")}>
+            Failed Launches only
+          </option>
+          <option value="successful" onClick={() => filterLaunches("successful")}>
+            Successful Launches only
+          </option>
+        </Select>
+      </Flex>
       <SimpleGrid m={[2, null, 6]} minChildWidth="350px" spacing="4">
         {error && <Error />}
         {data &&
