@@ -2,7 +2,6 @@ import React from "react";
 import {
   Text,
   Box,
-  Link,
   Badge,
   Image,
   Heading,
@@ -14,6 +13,7 @@ import {
   DrawerCloseButton,
 } from "@chakra-ui/core";
 import { XCircle } from "react-feather";
+import { Link } from "react-router-dom";
 
 import useData from "./hooks/useData";
 
@@ -46,16 +46,19 @@ export function LaunchFavourites({ active, close, list }) {
             <DrawerCloseButton />
             <DrawerHeader>Favourites</DrawerHeader>
             <DrawerBody style={{ overflowY: "scroll" }}>
-              <Heading>Launches ({list.length})</Heading>
+              <Heading as="h3" size="lg" mb={4}>
+                Launches ({list.length})
+              </Heading>
               {list.length > 0 ? (
                 list.map((launch) => (
-                  <div>
+                  <Box
+                    as={Link}
+                    to={`/launches/${launch.flight_number.toString()}`}
+                  >
                     <Box
-                      as={Link}
-                      to={`/launches/${launch.flight_number.toString()}`}
                       boxShadow="md"
                       rounded="lg"
-                      m={[3, 6]}
+                      mb={4}
                       overflow="hidden"
                       position="relative"
                     >
@@ -65,7 +68,14 @@ export function LaunchFavourites({ active, close, list }) {
                         as={XCircle}
                         size="20px"
                         color="red.500"
-                        onClick={() => removeItem(launch)}
+                        position="absolute"
+                        right="8px"
+                        top="8px"
+                        onClick={(event) => {
+                          event.preventDefault();
+                          event.stopPropagation();
+                          removeItem(launch);
+                        }}
                       />
                       <Image
                         src={
@@ -80,44 +90,30 @@ export function LaunchFavourites({ active, close, list }) {
                         objectFit="cover"
                         objectPosition="bottom"
                       />
-
-                      <Image
-                        position="absolute"
-                        top="5"
-                        right="5"
-                        src={launch.links.mission_patch_small}
-                        height="75px"
-                        objectFit="contain"
-                        objectPosition="bottom"
-                      />
-
-                      <Box p="6">
-                        <Box d="flex" alignItems="baseline">
-                          {launch.launch_success ? (
-                            <Badge px="2" variant="solid" variantColor="green">
-                              Successful
-                            </Badge>
-                          ) : (
-                            <Badge px="2" variant="solid" variantColor="red">
-                              Failed
-                            </Badge>
-                          )}
-                          <Box
-                            color="gray.500"
-                            fontWeight="semibold"
-                            letterSpacing="wide"
-                            fontSize="xs"
-                            textTransform="uppercase"
-                            ml="2"
-                          >
-                            {launch.rocket.rocket_name} &bull;{" "}
-                            {launch.launch_site.site_name}
-                          </Box>
+                      <Box d="flex" alignItems="baseline" p={4}>
+                        {launch.launch_success ? (
+                          <Badge px="2" variant="solid" variantColor="green">
+                            Successful
+                          </Badge>
+                        ) : (
+                          <Badge px="2" variant="solid" variantColor="red">
+                            Failed
+                          </Badge>
+                        )}
+                        <Box
+                          color="gray.500"
+                          fontWeight="semibold"
+                          letterSpacing="wide"
+                          fontSize="xs"
+                          textTransform="uppercase"
+                          ml="2"
+                        >
+                          {launch.rocket.rocket_name} &bull;{" "}
+                          {launch.launch_site.site_name}
                         </Box>
                       </Box>
-                    </Box>{" "}
-                  </div>
-                  // <LaunchItem launch={launch} key={launch.flight_number} />
+                    </Box>
+                  </Box>
                 ))
               ) : (
                 <Text>No favourites yet</Text>
@@ -159,13 +155,13 @@ export function LaunchPadFavourites({ active, close, list }) {
             <DrawerCloseButton />
             <DrawerHeader>Favourites</DrawerHeader>
             <DrawerBody style={{ overflowY: "scroll" }}>
-              <Heading>Launch Pads ({list.length})</Heading>
+              <Heading as="h3" size="lg" mb={4}>
+                Launch Pads ({list.length})
+              </Heading>
               {list.length > 0 ? (
                 list.map((launchPad) => (
-                  <div>
+                  <Box as={Link} to={`/launch-pads/${launchPad.site_id}`}>
                     <Box
-                      as={Link}
-                      to={`/launch-pads/${launchPad.site_id}`}
                       boxShadow="md"
                       borderWidth="1px"
                       rounded="lg"
@@ -178,39 +174,41 @@ export function LaunchPadFavourites({ active, close, list }) {
                         as={XCircle}
                         size="20px"
                         color="red.500"
-                        onClick={() => {
+                        position="absolute"
+                        right="8px"
+                        top="8px"
+                        onClick={(event) => {
+                          event.preventDefault();
+                          event.stopPropagation();
                           removeItem(launchPad);
                         }}
                       />
-                      <Box p="6">
-                        <Box d="flex" alignItems="baseline">
-                          {launchPad.status === "active" ? (
-                            <Badge px="2" variant="solid" variantColor="green">
-                              Active
-                            </Badge>
-                          ) : (
-                            <Badge px="2" variant="solid" variantColor="red">
-                              Retired
-                            </Badge>
-                          )}
-                          <Box
-                            color="gray.500"
-                            fontWeight="semibold"
-                            letterSpacing="wide"
-                            fontSize="xs"
-                            textTransform="uppercase"
-                            ml="2"
-                          >
-                            {launchPad.attempted_launches} attempted &bull;{" "}
-                            {launchPad.successful_launches} succeeded
-                          </Box>
+                      <Box d="flex" alignItems="baseline" p={4}>
+                        {launchPad.status === "active" ? (
+                          <Badge px="2" variant="solid" variantColor="green">
+                            Active
+                          </Badge>
+                        ) : (
+                          <Badge px="2" variant="solid" variantColor="red">
+                            Retired
+                          </Badge>
+                        )}
+                        <Box
+                          mt="1"
+                          fontWeight="semibold"
+                          as="h4"
+                          ml={4}
+                          lineHeight="tight"
+                          isTruncated
+                        >
+                          {launchPad.name}
                         </Box>
-                        <Text color="gray.500" fontSize="sm">
-                          {launchPad.vehicles_launched.join(", ")}
-                        </Text>
                       </Box>
+                      <Text color="gray.500" fontSize="sm" p={4}>
+                        {launchPad.vehicles_launched.join(", ")}
+                      </Text>
                     </Box>
-                  </div>
+                  </Box>
                 ))
               ) : (
                 <Text>No favourites yet</Text>

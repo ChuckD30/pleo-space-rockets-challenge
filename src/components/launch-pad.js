@@ -84,7 +84,7 @@ export default function LaunchPad() {
       <Flex align={"center"} m={[3, 6]}>
         <Text>
           {launchPads.includes(launchPad.site_id) ? "Remove" : "Add"}{" "}
-          {launchPads.site_id} pad{" "}
+          {launchPad.name}{" "}
           {launchPads.includes(launchPad.site_id) ? "from" : "to"} favourites
         </Text>
         <Box
