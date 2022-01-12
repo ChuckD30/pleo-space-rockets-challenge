@@ -22,8 +22,9 @@ export function formatDateTime(timestamp) {
 }
 
 export function formatTime(timestamp) {
+  console.log(timestamp);
   const launchTime = timestamp.substring(0, 19);
-  const launchTimezone = Number(timestamp.substr(19, 3));
+  const launchTimezone = Number(timestamp.substring(19, 22));
   const offset = launchTimezone > 0 ? `+{launchTimezone}` : launchTimezone;
 
   const launchDate = format(new Date(launchTime), "MMMM d, yyyy, h:mm:ss a");
