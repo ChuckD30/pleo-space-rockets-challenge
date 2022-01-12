@@ -21,13 +21,12 @@ export function formatDateTime(timestamp) {
   }).format(new Date(timestamp));
 }
 
-export function formatTime(time) {
-  const tm = time.substring(0, 19);
-  const tz = Number(time.substr(19, 3));
-  const offset = tz > 0 ? `+{tz}` : tz;
+export function formatTime(timestamp) {
+  const launchTime = timestamp.substring(0, 19);
+  const launchTimezone = Number(timestamp.substr(19, 3));
+  const offset = launchTimezone > 0 ? `+{launchTimezone}` : launchTimezone;
 
-  console.log(tz);
-  const dt = format(new Date(tm), "MMMM d, yyyy, h:mm:ss a");
+  const launchDate = format(new Date(launchTime), "MMMM d, yyyy, h:mm:ss a");
 
-  return `${dt} GMT${offset}`;
+  return `${launchDate} GMT${offset}`;
 }
