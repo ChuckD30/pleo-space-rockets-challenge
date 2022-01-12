@@ -1,43 +1,134 @@
-import React from "react";
-import { Badge, Box, Image, SimpleGrid, Text, Flex, Select } from "@chakra-ui/core";
+import React, { useCallback, useEffect, useState } from "react";
+import {
+  Badge,
+  Box,
+  Image,
+  SimpleGrid,
+  Text,
+  Flex,
+  Select,
+} from "@chakra-ui/core";
 import { format as timeAgo } from "timeago.js";
 import { Link } from "react-router-dom";
+import { Star } from "react-feather";
 
 import { useSpaceXPaginated } from "../utils/use-space-x";
 import { formatDate } from "../utils/format-date";
 import Error from "./error";
 import Breadcrumbs from "./breadcrumbs";
 import LoadMoreButton from "./load-more-button";
+import { LaunchFavourites } from "./favourites-drawer";
+import useData from "./hooks/useData";
 
 const PAGE_SIZE = 12;
 
 export default function Launches() {
-  const { data, error, isValidating, setSize, size } = useSpaceXPaginated(
-    "/launches/past",
-    {
-      limit: PAGE_SIZE,
-      order: "desc",
-      sort: "launch_date_utc",
-    }
-  );
-  console.log(data, error);
+  const {
+    size,
+    error,
+    setSize,
+    isValidating,
+    data: launchData,
+  } = useSpaceXPaginated("/launches/past", {
+    limit: PAGE_SIZE,
+    order: "desc",
+    sort: "launch_date_utc",
+  });
 
-  const filterLaunches = (value) => {
-    return data.filter((launch) => launch.launch_success === value);
-  }
+  const {
+    data: {
+      favourites,
+      favourites: { launches },
+    },
+    dispatch,
+  } = useData();
+
+  const [filter, setFilter] = useState();
+
+  const [data, setData] = useState(launchData?.flat() || []);
+
+  const [favouritesList, setFavouritesList] = useState([]);
+
+  const [showFavourites, setShowFavourites] = useState(false);
+
+  const toggleDrawer = () => {
+    setShowFavourites(!showFavourites);
+  };
+
+  const filterLaunches = useCallback(() => {
+    if (filter === undefined) {
+      setData(launchData?.flat() || []);
+    } else if (filter) {
+      setData(launchData.flat().filter((launch) => launch.launch_success));
+    } else {
+      setData(launchData.flat().filter((launch) => !launch.launch_success));
+    }
+  }, [filter, launchData]);
+
+  useEffect(() => {
+    if (launchData && launchData.length) {
+      filterLaunches();
+    }
+  }, [filter, launchData, filterLaunches]);
+
+  useEffect(() => {
+    if (launchData && launchData.length) {
+      setFavouritesList([
+        ...launchData
+          .flat()
+          .filter((launch) => launches.includes(launch.flight_number)),
+      ]);
+    }
+  }, [launches, launchData]);
+
+  const addToFavourites = (launch) => {
+    if (!launches.includes(launch.flight_number)) {
+      dispatch({
+        favourites: {
+          ...favourites,
+          launches: [...launches, launch.flight_number],
+        },
+      });
+    } else {
+      dispatch({
+        favourites: {
+          ...favourites,
+          launches: launches.filter(
+            (launchItem) => launchItem !== launch.flight_number
+          ),
+        },
+      });
+    }
+  };
 
   return (
     <div>
-      <Breadcrumbs
-        items={[{ label: "Home", to: "/" }, { label: "Launches" }]}
+      <LaunchFavourites
+        active={showFavourites}
+        close={setShowFavourites}
+        list={favouritesList}
       />
+      <Flex align={"center"} justify={"space-between"} mr={6}>
+        <Breadcrumbs
+          items={[{ label: "Home", to: "/" }, { label: "Launches" }]}
+        />
+        <Text cursor="pointer" onClick={toggleDrawer}>
+          Favourites
+        </Text>
+      </Flex>
       <Flex m={(2, 6)} align="center">
         <Text mr={2}>Filter </Text>
-        <Select placeholder="Select option" size="sm" maxWidth={"300px"}>
-          <option value="failed" onClick={() => filterLaunches("failed")}>
+        <Select
+          size="sm"
+          maxWidth={"300px"}
+          color="gray.700"
+          bg="white"
+        >
+          <option value={undefined} onClick={() => setFilter(undefined)}>All launches</option>
+          <option value={false} onClick={() => setFilter(false)}>
             Failed Launches only
           </option>
-          <option value="successful" onClick={() => filterLaunches("successful")}>
+          <option value={true} onClick={() => setFilter(true)}>
             Successful Launches only
           </option>
         </Select>
@@ -45,11 +136,13 @@ export default function Launches() {
       <SimpleGrid m={[2, null, 6]} minChildWidth="350px" spacing="4">
         {error && <Error />}
         {data &&
-          data
-            .flat()
-            .map((launch) => (
-              <LaunchItem launch={launch} key={launch.flight_number} />
-            ))}
+          data.map((launch) => (
+            <LaunchItem
+              launch={launch}
+              addToFavourites={addToFavourites}
+              key={launch.flight_number}
+            />
+          ))}
       </SimpleGrid>
       <LoadMoreButton
         loadMore={() => setSize(size + 1)}
@@ -61,7 +154,13 @@ export default function Launches() {
   );
 }
 
-export function LaunchItem({ launch }) {
+export function LaunchItem({ launch, addToFavourites }) {
+  const {
+    data: {
+      favourites: { launches },
+    },
+  } = useData();
+
   return (
     <Box
       as={Link}
@@ -117,15 +216,29 @@ export function LaunchItem({ launch }) {
           </Box>
         </Box>
 
-        <Box
-          mt="1"
-          fontWeight="semibold"
-          as="h4"
-          lineHeight="tight"
-          isTruncated
-        >
-          {launch.mission_name}
-        </Box>
+        <Flex align={"center"}>
+          <Box
+            mt="1"
+            fontWeight="semibold"
+            as="h4"
+            lineHeight="tight"
+            isTruncated
+          >
+            {launch.mission_name}
+          </Box>
+          <Box
+            ml="2"
+            mt="1"
+            as={Star}
+            size="16px"
+            color="gray.500"
+            onClick={(event) => {
+              event.preventDefault();
+              addToFavourites(launch);
+            }}
+            fill={launches.includes(launch.flight_number) ? "gold" : ""}
+          />
+        </Flex>
         <Flex>
           <Text fontSize="sm">{formatDate(launch.launch_date_utc)} </Text>
           <Text color="gray.500" ml="2" fontSize="sm">

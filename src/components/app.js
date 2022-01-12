@@ -10,12 +10,15 @@ import Home from "./home";
 import LaunchPads from "./launch-pads";
 import LaunchPad from "./launch-pad";
 import ParticleBackground from "./particle-background";
+import { DataProvider } from "./hooks/useData";
+import { init } from "../store";
 
 export default function App() {
   const { colorMode } = useColorMode();
   return (
     <div>
       {colorMode === "dark" && <ParticleBackground />}
+      <DataProvider init={init}>
       <div
         style={{
           position: "relative",
@@ -31,6 +34,7 @@ export default function App() {
           <Route path="/launch-pads/:launchPadId" element={<LaunchPad />} />
         </Routes>
       </div>
+      </DataProvider>
     </div>
   );
 }

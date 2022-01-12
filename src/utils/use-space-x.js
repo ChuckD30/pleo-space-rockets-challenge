@@ -1,6 +1,6 @@
 import useSWR, { useSWRInfinite } from "swr";
 
-const fetcher = async (...args) => {
+const fetcher = async (...args) => { 
   const response = await fetch(...args);
   if (!response.ok) {
     throw Error(response.statusText);
@@ -20,7 +20,7 @@ function getSpaceXUrl(path, options) {
 
 export function useSpaceX(path, options) {
   const endpointUrl = getSpaceXUrl(path, options);
-  return useSWR(path ? endpointUrl : null, fetcher);
+  return useSWR(path ? endpointUrl : null, fetcher);  
 }
 
 export function useSpaceXPaginated(path, options) {
