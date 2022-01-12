@@ -56,12 +56,12 @@ export default function Launches() {
   };
 
   const filterLaunches = useCallback(() => {
-    if (filter === undefined) {
-      setData(launchData?.flat() || []);
-    } else if (filter) {
+    if (filter === "failed") {
+      setData(launchData.flat().filter((launch) => !launch.launch_success));
+    } else if (filter === "success") {
       setData(launchData.flat().filter((launch) => launch.launch_success));
     } else {
-      setData(launchData.flat().filter((launch) => !launch.launch_success));
+      setData(launchData?.flat() || []);
     }
   }, [filter, launchData]);
 
@@ -123,12 +123,17 @@ export default function Launches() {
           maxWidth={"300px"}
           color="gray.700"
           bg="white"
+          onChange={(e) => {
+            setFilter(e.target.value);
+          }}
         >
-          <option value={undefined} onClick={() => setFilter(undefined)}>All launches</option>
-          <option value={false} onClick={() => setFilter(false)}>
+          <option value="all" onClick={() => setFilter("all")}>
+            All launches
+          </option>
+          <option value="failed" onClick={() => setFilter("failed")}>
             Failed Launches only
           </option>
-          <option value={true} onClick={() => setFilter(true)}>
+          <option value="success" onClick={() => setFilter("success")}>
             Successful Launches only
           </option>
         </Select>
