@@ -1,19 +1,30 @@
 import React from "react";
 import { Routes, Route } from "react-router-dom";
-import { Flex, Text } from "@chakra-ui/core";
+import { Flex, Text, Box, useColorMode } from "@chakra-ui/core";
+import { Moon, Sun } from "react-feather";
+import { Link } from "react-router-dom";
 
 import Launches from "./launches";
 import Launch from "./launch";
 import Home from "./home";
 import LaunchPads from "./launch-pads";
 import LaunchPad from "./launch-pad";
+import ParticleBackground from "./particle-background";
 import { DataProvider } from "./hooks/useData";
 import { init } from "../store";
 
 export default function App() {
+  const { colorMode } = useColorMode();
   return (
     <div>
+      {colorMode === "dark" && <ParticleBackground />}
       <DataProvider init={init}>
+      <div
+        style={{
+          position: "relative",
+          zIndex: "1",
+        }}
+      >
         <NavBar />
         <Routes>
           <Route path="/" element={<Home />} />
@@ -22,12 +33,14 @@ export default function App() {
           <Route path="/launch-pads" element={<LaunchPads />} />
           <Route path="/launch-pads/:launchPadId" element={<LaunchPad />} />
         </Routes>
+      </div>
       </DataProvider>
     </div>
   );
 }
 
 function NavBar() {
+  const { colorMode, toggleColorMode } = useColorMode();
   return (
     <Flex
       as="nav"
@@ -43,9 +56,18 @@ function NavBar() {
         letterSpacing="2px"
         fontWeight="bold"
         fontSize="lg"
+        cursor={"pointer"}
+        as={Link}
+        to={`/`}
       >
         ¡SPACE·R0CKETS!
       </Text>
+      <Box
+        as={colorMode === "dark" ? Sun : Moon}
+        size="20px"
+        onClick={() => toggleColorMode()}
+        cursor={"pointer"}
+      />
     </Flex>
   );
 }

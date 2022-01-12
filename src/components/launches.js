@@ -1,5 +1,13 @@
-import React, { useEffect, useState } from "react";
-import { Badge, Box, Image, SimpleGrid, Text, Flex } from "@chakra-ui/core";
+import React, { useCallback, useEffect, useState } from "react";
+import {
+  Badge,
+  Box,
+  Image,
+  SimpleGrid,
+  Text,
+  Flex,
+  Select,
+} from "@chakra-ui/core";
 import { format as timeAgo } from "timeago.js";
 import { Link } from "react-router-dom";
 import { Star } from "react-feather";
@@ -35,6 +43,8 @@ export default function Launches() {
     dispatch,
   } = useData();
 
+  const [filter, setFilter] = useState();
+
   const [data, setData] = useState(launchData?.flat() || []);
 
   const [favouritesList, setFavouritesList] = useState([]);
@@ -45,17 +55,31 @@ export default function Launches() {
     setShowFavourites(!showFavourites);
   };
 
-  useEffect(() => {
-    setData(launchData?.flat() || []);
-  }, [launchData]);
+  const filterLaunches = useCallback(() => {
+    if (filter === undefined) {
+      setData(launchData?.flat() || []);
+    } else if (filter) {
+      setData(launchData.flat().filter((launch) => launch.launch_success));
+    } else {
+      setData(launchData.flat().filter((launch) => !launch.launch_success));
+    }
+  }, [filter, launchData]);
 
   useEffect(() => {
-    if (data && data.length) {
+    if (launchData && launchData.length) {
+      filterLaunches();
+    }
+  }, [filter, launchData, filterLaunches]);
+
+  useEffect(() => {
+    if (launchData && launchData.length) {
       setFavouritesList([
-        ...data.filter((launch) => launches.includes(launch.flight_number)),
+        ...launchData
+          .flat()
+          .filter((launch) => launches.includes(launch.flight_number)),
       ]);
     }
-  }, [launches, data]);
+  }, [launches, launchData]);
 
   const addToFavourites = (launch) => {
     if (!launches.includes(launch.flight_number)) {
@@ -91,6 +115,23 @@ export default function Launches() {
         <Text cursor="pointer" onClick={toggleDrawer}>
           Favourites
         </Text>
+      </Flex>
+      <Flex m={(2, 6)} align="center">
+        <Text mr={2}>Filter </Text>
+        <Select
+          size="sm"
+          maxWidth={"300px"}
+          color="gray.700"
+          bg="white"
+        >
+          <option value={undefined} onClick={() => setFilter(undefined)}>All launches</option>
+          <option value={false} onClick={() => setFilter(false)}>
+            Failed Launches only
+          </option>
+          <option value={true} onClick={() => setFilter(true)}>
+            Successful Launches only
+          </option>
+        </Select>
       </Flex>
       <SimpleGrid m={[2, null, 6]} minChildWidth="350px" spacing="4">
         {error && <Error />}

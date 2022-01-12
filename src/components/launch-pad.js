@@ -15,6 +15,7 @@ import {
   Spinner,
   Stack,
   AspectRatioBox,
+  useColorMode,
 } from "@chakra-ui/core";
 
 import { useSpaceX } from "../utils/use-space-x";
@@ -24,6 +25,7 @@ import { LaunchItem } from "./launches";
 import useData from "./hooks/useData";
 
 export default function LaunchPad() {
+  const { colorMode } = useColorMode();
   let { launchPadId } = useParams();
   const { data: launchPad, error } = useSpaceX(`/launchpads/${launchPadId}`);
 
@@ -98,7 +100,7 @@ export default function LaunchPad() {
       </Flex>
       <Box m={[3, 6]}>
         <LocationAndVehicles launchPad={launchPad} />
-        <Text color="gray.700" fontSize={["md", null, "lg"]} my="8">
+        <Text color={colorMode === "dark" ? "white" : "gray.700"} fontSize={["md", null, "lg"]} my="8">
           {launchPad.details}
         </Text>
         <Map location={launchPad.location} />

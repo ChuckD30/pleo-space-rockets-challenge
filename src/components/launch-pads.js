@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from "react";
-import { Badge, Box, SimpleGrid, Flex, Text } from "@chakra-ui/core";
+import React, { useCallback, useEffect, useState } from "react";
+import { Badge, Box, SimpleGrid, Flex, Text, Select } from "@chakra-ui/core";
 import { Link } from "react-router-dom";
 import { Star } from "react-feather";
 
@@ -31,6 +31,8 @@ export default function LaunchPads() {
     dispatch,
   } = useData();
 
+  const [filter, setFilter] = useState("all");
+
   const [data, setData] = useState(launchPadData?.flat() || []);
 
   const [favouritesList, setFavouritesList] = useState([]);
@@ -41,17 +43,35 @@ export default function LaunchPads() {
     setShowFavourites(!showFavourites);
   };
 
-  useEffect(() => {
-    setData(launchPadData?.flat() || []);
-  }, [launchPadData]);
+  const filterLaunchPads = useCallback(() => {
+    if (filter === "all") {
+      setData(launchPadData?.flat() || []);
+    } else if (filter === "active") {
+      setData(
+        launchPadData
+          .flat()
+          .filter((launchPad) => launchPad.status === "active")
+      );
+    } else {
+      setData(launchPadData.flat().filter((launchPad) => launchPad.status !== "active"));
+    }
+  }, [filter, launchPadData]);
 
   useEffect(() => {
-    if (data && data.length) {
+    if (launchPadData && launchPadData.length) {
+      filterLaunchPads()
+    }
+  }, [filter, launchPadData, filterLaunchPads]);
+
+  useEffect(() => {
+    if (launchPadData && launchPadData.length) {
       setFavouritesList([
-        ...data.filter((launchPad) => launchPads.includes(launchPad.site_id)),
+        ...launchPadData
+          .flat()
+          .filter((launchPad) => launchPads.includes(launchPad.site_id)),
       ]);
     }
-  }, [launchPads, data]);
+  }, [launchPads, launchPadData]);
 
   const addToFavourites = (launchPad) => {
     if (!launchPads.includes(launchPad.site_id)) {
@@ -87,6 +107,20 @@ export default function LaunchPads() {
         <Text cursor="pointer" onClick={toggleDrawer}>
           Favourites
         </Text>
+      </Flex>
+      <Flex m={(2, 6)} align="center">
+        <Text mr={2}>Filter </Text>
+        <Select size="sm" maxWidth={"300px"} color="gray.700" bg="white">
+          <option value="all" onClick={() => setFilter("all")}>
+            All launch pads
+          </option>
+          <option value="retired" onClick={() => setFilter("retired")}>
+            Retired Launch pads only
+          </option>
+          <option value="active" onClick={() => setFilter("active")}>
+            Active Launch pads only
+          </option>
+        </Select>
       </Flex>
       <SimpleGrid m={[2, null, 6]} minChildWidth="350px" spacing="4">
         {error && <Error />}

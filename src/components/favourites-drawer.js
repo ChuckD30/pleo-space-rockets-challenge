@@ -164,6 +164,7 @@ export function LaunchPadFavourites({ active, close, list }) {
                     <Box
                       boxShadow="md"
                       borderWidth="1px"
+                      mb={4}
                       rounded="lg"
                       overflow="hidden"
                       position="relative"
