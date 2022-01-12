@@ -7,18 +7,22 @@ import Launch from "./launch";
 import Home from "./home";
 import LaunchPads from "./launch-pads";
 import LaunchPad from "./launch-pad";
+import { DataProvider } from "./hooks/useData";
+import { init } from "../store";
 
 export default function App() {
   return (
     <div>
-      <NavBar />
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/launches" element={<Launches />} />
-        <Route path="/launches/:launchId" element={<Launch />} />
-        <Route path="/launch-pads" element={<LaunchPads />} />
-        <Route path="/launch-pads/:launchPadId" element={<LaunchPad />} />
-      </Routes>
+      <DataProvider init={init}>
+        <NavBar />
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/launches" element={<Launches />} />
+          <Route path="/launches/:launchId" element={<Launch />} />
+          <Route path="/launch-pads" element={<LaunchPads />} />
+          <Route path="/launch-pads/:launchPadId" element={<LaunchPad />} />
+        </Routes>
+      </DataProvider>
     </div>
   );
 }

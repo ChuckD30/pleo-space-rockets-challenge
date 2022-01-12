@@ -1,7 +1,7 @@
 import React from "react";
 import { useParams, Link as RouterLink } from "react-router-dom";
 import { format as timeAgo } from "timeago.js";
-import { Watch, MapPin, Navigation, Layers } from "react-feather";
+import { Watch, MapPin, Navigation, Layers, Star } from "react-feather";
 import {
   Flex,
   Heading,
@@ -26,10 +26,39 @@ import { useSpaceX } from "../utils/use-space-x";
 import { formatDateTime, formatTime } from "../utils/format-date";
 import Error from "./error";
 import Breadcrumbs from "./breadcrumbs";
+import useData from "./hooks/useData";
 
 export default function Launch() {
   let { launchId } = useParams();
   const { data: launch, error } = useSpaceX(`/launches/${launchId}`);
+
+  const {
+    data: {
+      favourites,
+      favourites: { launches },
+    },
+    dispatch,
+  } = useData();
+
+  const addToFavourites = (launch) => {
+    if (!launches.includes(launch.flight_number)) {
+      dispatch({
+        favourites: {
+          ...favourites,
+          launches: [...launches, launch.flight_number],
+        },
+      });
+    } else {
+      dispatch({
+        favourites: {
+          ...favourites,
+          launches: launches.filter(
+            (launchItem) => launchItem !== launch.flight_number
+          ),
+        },
+      });
+    }
+  };
 
   if (error) return <Error />;
   if (!launch) {
@@ -50,6 +79,24 @@ export default function Launch() {
         ]}
       />
       <Header launch={launch} />
+      <Flex align={"center"} m={[3, 6]}>
+        <Text>
+          {launches.includes(launch.flight_number) ? "Remove" : "Add"}{" "}
+          {launch.mission_name} mission{" "}
+          {launches.includes(launch.flight_number) ? "from" : "to"} favourites
+        </Text>
+        <Box
+          ml="2"
+          as={Star}
+          size="20px"
+          cursor="pointer"
+          onClick={(event) => {
+            event.preventDefault();
+            addToFavourites(launch);
+          }}
+          fill={launches.includes(launch.flight_number) ? "gold" : ""}
+        />
+      </Flex>
       <Box m={[3, 6]}>
         <TimeAndLocation launch={launch} />
         <RocketInfo launch={launch} />

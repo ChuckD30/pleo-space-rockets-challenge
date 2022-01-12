@@ -1,6 +1,6 @@
 import React from "react";
 import { useParams } from "react-router-dom";
-import { MapPin, Navigation } from "react-feather";
+import { MapPin, Navigation, Star } from "react-feather";
 import {
   Flex,
   Heading,
@@ -21,6 +21,7 @@ import { useSpaceX } from "../utils/use-space-x";
 import Error from "./error";
 import Breadcrumbs from "./breadcrumbs";
 import { LaunchItem } from "./launches";
+import useData from "./hooks/useData";
 
 export default function LaunchPad() {
   let { launchPadId } = useParams();
@@ -32,6 +33,34 @@ export default function LaunchPad() {
     sort: "launch_date_utc",
     site_id: launchPad?.site_id,
   });
+
+  const {
+    data: {
+      favourites,
+      favourites: { launchPads },
+    },
+    dispatch,
+  } = useData();
+
+  const addToFavourites = (launchPad) => {
+    if (!launchPads.includes(launchPad.site_id)) {
+      dispatch({
+        favourites: {
+          ...favourites,
+          launchPads: [...launchPads, launchPad.site_id],
+        },
+      });
+    } else {
+      dispatch({
+        favourites: {
+          ...favourites,
+          launchPads: launchPads.filter(
+            (launchPadItem) => launchPadItem !== launchPad.site_id
+          ),
+        },
+      });
+    }
+  };
 
   if (error) return <Error />;
   if (!launchPad) {
@@ -52,6 +81,21 @@ export default function LaunchPad() {
         ]}
       />
       <Header launchPad={launchPad} />
+      <Flex align={"center"} m={[3, 6]}>
+        <Text>
+          {launchPads.includes(launchPad.site_id) ? "Remove" : "Add"}{" "}
+          {launchPad.name}{" "}
+          {launchPads.includes(launchPad.site_id) ? "from" : "to"} favourites
+        </Text>
+        <Box
+          ml="2"
+          as={Star}
+          size="20px"
+          cursor="pointer"
+          onClick={() => addToFavourites(launchPad) }
+          fill={launchPads.includes(launchPad.site_id) ? "gold" : ""}
+        />
+      </Flex>
       <Box m={[3, 6]}>
         <LocationAndVehicles launchPad={launchPad} />
         <Text color="gray.700" fontSize={["md", null, "lg"]} my="8">
