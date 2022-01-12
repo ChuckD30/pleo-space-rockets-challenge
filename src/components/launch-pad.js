@@ -36,21 +36,27 @@ export default function LaunchPad() {
 
   const {
     data: {
+      favourites,
       favourites: { launchPads },
     },
     dispatch,
   } = useData();
 
-  const addToFavourites = (event, launch) => {
-    event.preventDefault();
-    if (!launchPads.includes(launchPad.flight_number)) {
+  const addToFavourites = (launchPad) => {
+    if (!launchPads.includes(launchPad.site_id)) {
       dispatch({
-        favourites: { launches: [...launchPads, launchPad.site_id] },
+        favourites: {
+          ...favourites,
+          launchPads: [...launchPads, launchPad.site_id],
+        },
       });
     } else {
       dispatch({
         favourites: {
-          launches: launchPads.filter((l) => l !== launchPad.site_id),
+          ...favourites,
+          launchPads: launchPads.filter(
+            (launchPadItem) => launchPadItem !== launchPad.site_id
+          ),
         },
       });
     }
@@ -86,8 +92,8 @@ export default function LaunchPad() {
           as={Star}
           size="20px"
           cursor="pointer"
-          onClick={(event) => addToFavourites(event, launchPad)}
-          // fill={launches.includes(launch.flight_number) ? "gold" : ""}
+          onClick={() => addToFavourites(launchPad) }
+          fill={launchPads.includes(launchPad.site_id) ? "gold" : ""}
         />
       </Flex>
       <Box m={[3, 6]}>

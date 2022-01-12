@@ -25,6 +25,7 @@ export default function LaunchPads() {
 
   const {
     data: {
+      favourites,
       favourites: { launchPads },
     },
     dispatch,
@@ -56,12 +57,14 @@ export default function LaunchPads() {
     if (!launchPads.includes(launchPad.site_id)) {
       dispatch({
         favourites: {
+          ...favourites,
           launchPads: [...launchPads, launchPad.site_id],
         },
       });
     } else {
       dispatch({
         favourites: {
+          ...favourites,
           launchPads: launchPads.filter(
             (launchPadItem) => launchPadItem !== launchPad.site_id
           ),

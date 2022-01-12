@@ -29,6 +29,7 @@ export default function Launches() {
 
   const {
     data: {
+      favourites,
       favourites: { launches },
     },
     dispatch,
@@ -60,12 +61,14 @@ export default function Launches() {
     if (!launches.includes(launch.flight_number)) {
       dispatch({
         favourites: {
+          ...favourites,
           launches: [...launches, launch.flight_number],
         },
       });
     } else {
       dispatch({
         favourites: {
+          ...favourites,
           launches: launches.filter(
             (launchItem) => launchItem !== launch.flight_number
           ),

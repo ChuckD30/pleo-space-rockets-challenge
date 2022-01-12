@@ -32,25 +32,28 @@ export default function Launch() {
   const { data: launch, error } = useSpaceX(`/launches/${launchId}`);
 
   const {
-    data,
     data: {
+      favourites,
       favourites: { launches },
     },
     dispatch,
   } = useData();
 
   const addToFavourites = (launch) => {
-    // event.preventDefault();
     if (!launches.includes(launch.flight_number)) {
       dispatch({
         favourites: {
-          launches: [...data.favourites.launches, launch.flight_number],
+          ...favourites,
+          launches: [...launches, launch.flight_number],
         },
       });
     } else {
       dispatch({
         favourites: {
-          launches: launches.filter((l) => l !== launch.flight_number),
+          ...favourites,
+          launches: launches.filter(
+            (launchItem) => launchItem !== launch.flight_number
+          ),
         },
       });
     }
