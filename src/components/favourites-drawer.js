@@ -54,6 +54,7 @@ export function LaunchFavourites({ active, close, list }) {
                   <Box
                     as={Link}
                     to={`/launches/${launch.flight_number.toString()}`}
+                    key={launch.flight_number}
                   >
                     <Box
                       boxShadow="md"
@@ -160,7 +161,11 @@ export function LaunchPadFavourites({ active, close, list }) {
               </Heading>
               {list.length > 0 ? (
                 list.map((launchPad) => (
-                  <Box as={Link} to={`/launch-pads/${launchPad.site_id}`}>
+                  <Box
+                    as={Link}
+                    to={`/launch-pads/${launchPad.site_id}`}
+                    key={launchPad.site_id}
+                  >
                     <Box
                       boxShadow="md"
                       borderWidth="1px"
