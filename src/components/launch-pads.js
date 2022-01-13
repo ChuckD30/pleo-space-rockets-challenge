@@ -110,7 +110,15 @@ export default function LaunchPads() {
       </Flex>
       <Flex m={(2, 6)} align="center">
         <Text mr={2}>Filter </Text>
-        <Select size="sm" maxWidth={"300px"} color="gray.700" bg="white">
+        <Select
+          size="sm"
+          maxWidth={"300px"}
+          color="gray.700"
+          bg="white"
+          onChange={(e) => {
+            setFilter(e.target.value);
+          }}
+        >
           <option value="all" onClick={() => setFilter("all")}>
             All launch pads
           </option>
